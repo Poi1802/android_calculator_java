@@ -3,9 +3,6 @@ package com.example.calculatorev;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,15 +13,17 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.calculatorev.databinding.ActivityMainBinding;
 import com.google.android.material.button.MaterialButton;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ActivityMainBinding binding;
+    Context rhinoContext = Context.enter();
 
     /**
      * TODO GO TO GITHUB!!!!!!
@@ -85,8 +84,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         switch (buttonText) {
             case "=":
-                String result = tokenCalcualtion(parseNumericExpression());
-                binding.historyTv.setText(result);
+                rhinoContext.setOptimizationLevel(-1);
+                try {
+                    // Инициализация стандартной области видимости JavaScript
+                    Scriptable scope = rhinoContext.initStandardObjects();
+
+                    // Вычисление строки
+                    Object result = rhinoContext.evaluateString(
+                            scope,
+                            binding.calcTv.getText().toString(),
+                            "expressionName", // Имя источника (для отладки)
+                            1,                // Номер строки
+                            null
+                    );
+
+                    binding.historyTv.setText(String.valueOf(result));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "AC":
                 binding.calcTv.setText("");
@@ -108,36 +123,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public List<String> parseNumericExpression() {
-        List<String> tokens = new ArrayList<>();
 
-        // Регулярное выражение для поиска:
-        // \\d+(\\.\\d+)?   - чисел (целых или с плавающей точкой)
-        // [+\\-*/^%]      - математических операторов
-        // [()]            - скобок
-        // \\s+            - пробелов (которые мы игнорируем)
-        Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?|[+\\-*/^%()]|\\s+)");
-        Matcher matcher = pattern.matcher(binding.calcTv.getText().toString());
+    /*
+      TODO: Do the calculations yourself
+     */
 
-        while (matcher.find()) {
-            String token = matcher.group().trim();
-            // Игнорируем пробелы
-            if (!token.isEmpty()) {
-                tokens.add(token);
-            }
-        }
-        return tokens;
-    }
-
-    public String tokenCalcualtion(List<String> tokens) {
-        int result = 0;
-
-        for (int i = 0; i < tokens.toArray().length; i++) {
-            if (tokens.get(i).equals("+")) {
-                result += Integer.parseInt(tokens.get(i-1)) + Integer.parseInt(tokens.get(i+1));
-            }
-        }
-
-        return Integer.toString(result);
-    }
+//    public List<String> parseNumericExpression() {
+//        List<String> tokens = new ArrayList<>();
+//
+//        // Регулярное выражение для поиска:
+//        // \\d+(\\.\\d+)?   - чисел (целых или с плавающей точкой)
+//        // [+\\-*/^%]      - математических операторов
+//        // [()]            - скобок
+//        // \\s+            - пробелов (которые мы игнорируем)
+//        Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?|[+\\-*/^%()]|\\s+)");
+//        Matcher matcher = pattern.matcher(binding.calcTv.getText().toString());
+//
+//        while (matcher.find()) {
+//            String token = matcher.group().trim();
+//            // Игнорируем пробелы
+//            if (!token.isEmpty()) {
+//                tokens.add(token);
+//            }
+//        }
+//        return tokens;
+//    }
+//
+//    public String tokenCalcualtion(List<String> tokens) {
+//        int result = 0;
+//
+//        for (int i = 0; i < tokens.toArray().length; i++) {
+//            if (tokens.get(i).equals("+")) {
+//                result += Integer.parseInt(tokens.get(i-1)) + Integer.parseInt(tokens.get(i+1));
+//            }
+//        }
+//
+//        return Integer.toString(result);
+//    }
 }
