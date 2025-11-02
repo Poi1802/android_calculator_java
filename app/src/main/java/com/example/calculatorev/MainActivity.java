@@ -17,7 +17,10 @@ import com.example.calculatorev.databinding.ActivityMainBinding;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -79,6 +82,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         MaterialButton button = (MaterialButton) view;
         String buttonText = button.getText().toString();
-        binding.calcTv.setText(buttonText);
+
+        switch (buttonText) {
+            case "=":
+                String result = tokenCalcualtion(parseNumericExpression());
+                binding.historyTv.setText(result);
+                break;
+            case "AC":
+                binding.calcTv.setText("");
+                break;
+            case "c":
+                String calcText = binding.calcTv.getText().toString();
+
+                try {
+                    binding.calcTv.setText(calcText.substring(0, calcText.length()-1));
+                } catch (Exception e) {
+                    binding.calcTv.setText("");
+                }
+
+                break;
+            default:
+                String tvString = binding.calcTv.getText().toString().equals("0") ? "" : binding.calcTv.getText().toString();
+                String concatenateChars = tvString + buttonText;
+                binding.calcTv.setText(concatenateChars);
+        }
+    }
+
+    public List<String> parseNumericExpression() {
+        List<String> tokens = new ArrayList<>();
+
+        // Регулярное выражение для поиска:
+        // \\d+(\\.\\d+)?   - чисел (целых или с плавающей точкой)
+        // [+\\-*/^%]      - математических операторов
+        // [()]            - скобок
+        // \\s+            - пробелов (которые мы игнорируем)
+        Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?|[+\\-*/^%()]|\\s+)");
+        Matcher matcher = pattern.matcher(binding.calcTv.getText().toString());
+
+        while (matcher.find()) {
+            String token = matcher.group().trim();
+            // Игнорируем пробелы
+            if (!token.isEmpty()) {
+                tokens.add(token);
+            }
+        }
+        return tokens;
+    }
+
+    public String tokenCalcualtion(List<String> tokens) {
+        int result = 0;
+
+        for (int i = 0; i < tokens.toArray().length; i++) {
+            if (tokens.get(i).equals("+")) {
+                result += Integer.parseInt(tokens.get(i-1)) + Integer.parseInt(tokens.get(i+1));
+            }
+        }
+
+        return Integer.toString(result);
     }
 }
