@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_medium"
             android:gravity="end"
-            android:text="0"
+            android:text=""
             android:textSize="30sp"
             android:layout_marginBottom="200dp"/>
 
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_medium"
             android:gravity="end"
-            android:text="0"
+            android:text=""
             android:textSize="30sp" />
 
         <TextView
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_medium"
             android:gravity="end"
-            android:text="0"
+            android:text=""
             android:visibility="gone"
             android:textSize="30sp" />
     </LinearLayout>
@@ -335,7 +335,7 @@
                 android:id="@+id/button_dot"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text=","
+                android:text="."
                 android:textSize="20sp"
                 android:layout_weight="1"
                 android:padding="12dp"

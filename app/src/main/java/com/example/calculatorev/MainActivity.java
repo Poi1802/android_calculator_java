@@ -16,6 +16,7 @@ import com.google.android.material.button.MaterialButton;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,8 +84,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String buttonText = button.getText().toString();
 
         switch (buttonText) {
-            case "=":
+            case "=": {
+                if (binding.calcTv.getText().equals("")) break;
+
                 rhinoContext.setOptimizationLevel(-1);
+
                 try {
                     // Инициализация стандартной области видимости JavaScript
                     Scriptable scope = rhinoContext.initStandardObjects();
@@ -98,28 +102,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             null
                     );
 
-                    binding.historyTv.setText(String.valueOf(result));
+                    double resultDouble = Context.toNumber(result);
+
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    String resultString = df.format(resultDouble);
+
+                    if (resultString.equals("41,13")) {
+                        binding.historyTv.setText("Катюша, я люблю тебя ❤");
+                        break;
+                    }
+
+                    binding.historyTv.setText(resultString);
+                    binding.calcTv.setText(resultString);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    binding.historyTv.setText("");
                 }
                 break;
-            case "AC":
-                binding.calcTv.setText("");
+            }
+            case "X": {
+                buttonText = "*";
+                String tvString = binding.calcTv.getText().toString().equals("0") ? "" : binding.calcTv.getText().toString();
+                String concatenateChars = tvString + buttonText;
+                binding.calcTv.setText(concatenateChars);
                 break;
-            case "c":
+            }
+            case "—": {
+                buttonText = "-";
+                String tvString = binding.calcTv.getText().toString().equals("0") ? "" : binding.calcTv.getText().toString();
+                String concatenateChars = tvString + buttonText;
+                binding.calcTv.setText(concatenateChars);
+                break;
+            }
+            case "AC": {
+                binding.calcTv.setText("");
+                binding.historyTv.setText("");
+                break;
+            }
+            case "c": {
                 String calcText = binding.calcTv.getText().toString();
 
                 try {
-                    binding.calcTv.setText(calcText.substring(0, calcText.length()-1));
+                    binding.calcTv.setText(calcText.substring(0, calcText.length() - 1));
                 } catch (Exception e) {
                     binding.calcTv.setText("");
                 }
 
                 break;
-            default:
+            }
+            default: {
                 String tvString = binding.calcTv.getText().toString().equals("0") ? "" : binding.calcTv.getText().toString();
                 String concatenateChars = tvString + buttonText;
                 binding.calcTv.setText(concatenateChars);
+            }
         }
     }
 
