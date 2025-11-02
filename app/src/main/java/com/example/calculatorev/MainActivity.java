@@ -2,7 +2,9 @@ package com.example.calculatorev;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -12,15 +14,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.calculatorev.databinding.ActivityMainBinding;
+import com.google.android.material.button.MaterialButton;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
 
-    protected TextView historyTv, calcTv, resultTv;
-    protected Button buttonAc, buttonLeftBracket, buttonRightBracket, butonDivide;
-    protected Button button7, button8, button9, butonX;
-    protected Button button4, button5, button6, butonMinus;
-    protected Button button1, button2, button3, butonPlus;
-    protected Button buttonC, button0, buttonDot, butonSum;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
     private ActivityMainBinding binding;
 
     /**
@@ -43,11 +43,42 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        binding.buttonSum.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                binding.historyTv.setText("hello");
+        List<MaterialButton> allButtons = findAllButtons(binding.getRoot());
+        System.out.println(allButtons);
+
+        assignButtons(allButtons);
+
+        binding.buttonSum.setOnClickListener(this);
+
+    }
+
+    private List<MaterialButton> findAllButtons(ViewGroup view) {
+        List<MaterialButton> buttons = new ArrayList<>();
+        int childCount = view.getChildCount();
+
+        for (int i = 0; i < childCount; i++) {
+            View child = view.getChildAt(i);
+
+            if(child instanceof MaterialButton) {
+                buttons.add((MaterialButton) child);
+            } else if (child instanceof ViewGroup) {
+                buttons.addAll(findAllButtons((ViewGroup) child));
             }
-        });
+        }
+
+        return buttons;
+    }
+
+    public void assignButtons(List<MaterialButton> buttons) {
+        for (MaterialButton btn: buttons) {
+            btn.setOnClickListener(this);
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        MaterialButton button = (MaterialButton) view;
+        String buttonText = button.getText().toString();
+        binding.calcTv.setText(buttonText);
     }
 }
